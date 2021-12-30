@@ -1,10 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-interface User {
-  name: string;
-  id: number;
-}
+import type { User } from "../types";
 
 interface UsersListProps {
   users: User[];

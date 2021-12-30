@@ -1,9 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { UsersList } from "../components/UsersList";
-import { users } from "../data/users";
+import type { StateProps } from "../types";
 
-export function Users() {
+type Props = StateProps;
+
+export function Users(props: Props) {
+  const users = props.state.data;
+
   return (
     <>
       <h1>Users</h1>
