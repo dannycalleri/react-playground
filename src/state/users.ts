@@ -2,11 +2,12 @@ import { User, Action } from "../types";
 
 const CREATE_USER = "CREATE_USER";
 
-export function createUser(name: string) {
+export function createUser(name: string, friends?: number[]) {
   return {
     type: CREATE_USER,
     payload: {
       name,
+      friends,
     },
   };
 }
@@ -20,6 +21,7 @@ export function usersReducer(state: User[], action: Action): User[] {
         {
           id: newId,
           name: action.payload.name,
+          friends: action.payload.friends,
         },
       ];
     }

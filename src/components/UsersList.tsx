@@ -4,15 +4,20 @@ import type { User } from "../types";
 
 interface UsersListProps {
   users: User[];
+  render?: (user: User) => React.ReactNode;
 }
 
 export function UsersList(props: UsersListProps) {
-  const { users } = props;
+  const { users, render } = props;
   return (
     <ul>
       {users.map((user) => (
         <li key={user.id}>
-          <Link to={`/users/${user.id}`}>{user.name}</Link>
+          {render ? (
+            render(user)
+          ) : (
+            <Link to={`/users/${user.id}`}>{user.name}</Link>
+          )}
         </li>
       ))}
     </ul>
