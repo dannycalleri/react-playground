@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UsersList } from "../components/UsersList";
 import { Button } from "../ui";
 import { createUser } from "../state/users";
@@ -10,19 +10,33 @@ import {
   USER_ALREADY_EXISTS,
 } from "../errors";
 
-type Props = StateProps;
+interface CreateProps {
+  friends: number[];
+  openNewFriendWindow: () => void;
+  disabled?: boolean;
+  onSave?: (id: number) => void;
+}
+
+type Props = CreateProps & StateProps;
 
 function Loading() {
   return <>Loading...</>;
 }
 
 function Create(props: Props) {
-  const { state } = props;
+  const {
+    state,
+    friends: friendsProp,
+    onSave,
+    openNewFriendWindow,
+    disabled = false,
+  } = props;
+  const [isDisabled, setDisabled] = useState(disabled);
   const [error, setError] = useState<string | undefined>(undefined);
   const [retry, setRetry] = useState(false);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
-  const [friends, setFriends] = useState(new Set<number>());
+  const [friends, setFriends] = useState(new Set<number>(friendsProp));
   const [friendsVisible, setFriendsVisible] = useState(false);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -66,6 +80,8 @@ function Create(props: Props) {
       // reset fields
       setName("");
       setFriends(new Set());
+      setLoading(false);
+      onSave?.(newUser.id);
     } catch (error) {
       console.error(error);
       const message = (error as Error).message;
@@ -77,57 +93,69 @@ function Create(props: Props) {
       } else {
         setError("Generic error");
       }
-    } finally {
+
       setLoading(false);
     }
   }
 
+  useEffect(() => {
+    setDisabled(disabled);
+  }, [disabled]);
+
+  useEffect(() => {
+    setFriends(new Set(friendsProp));
+  }, [friendsProp]);
+
   const form = (
     <form onSubmit={handleSubmit}>
-      {retry ? (
-        <>
-          <p>Please retry</p>
-          <Button type="submit">Retry</Button>
-        </>
-      ) : (
-        <>
-          <label htmlFor="name">Name</label>
-          <input
-            id="name"
-            type="text"
-            onChange={handleNameChange}
-            value={name}
-          />
-          <div>
+      <fieldset disabled={isDisabled}>
+        {retry ? (
+          <>
+            <p>Please retry</p>
+            <Button type="submit">Retry</Button>
+          </>
+        ) : (
+          <>
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              onChange={handleNameChange}
+              value={name}
+            />
             <div>
-              <Button onClick={handleSelectFriendClick} type="button">
-                Select friend
-              </Button>
-              <Button type="button">New friend</Button>
-            </div>
+              <div>
+                <Button onClick={handleSelectFriendClick} type="button">
+                  Select friend
+                </Button>
+                <Button onClick={openNewFriendWindow} type="button">
+                  New friend
+                </Button>
+              </div>
 
-            {friendsVisible && (
-              <UsersList
-                users={props.state.data}
-                render={(user) => (
-                  <>
-                    {user.name}{" "}
-                    <Button
-                      type="button"
-                      onClick={() => handleFriendToggle(user)}
-                    >
-                      {friends.has(user.id) ? "Remove" : "Add"}
-                    </Button>
-                  </>
-                )}
-              />
-            )}
-          </div>
-          <div>
-            <Button type="submit">Save</Button>
-          </div>{" "}
-        </>
-      )}
+              {friendsVisible && (
+                <UsersList
+                  users={props.state.data}
+                  render={(user) => (
+                    <>
+                      {user.name}{" "}
+                      <Button
+                        type="button"
+                        onClick={() => handleFriendToggle(user)}
+                      >
+                        {friends.has(user.id) ? "Remove" : "Add"}
+                      </Button>
+                    </>
+                  )}
+                />
+              )}
+            </div>
+            <div>
+              <Button type="submit">Save</Button>
+            </div>{" "}
+          </>
+        )}
+      </fieldset>
     </form>
   );
 
@@ -140,10 +168,50 @@ function Create(props: Props) {
   );
 }
 
-export function CreateUser(props: Props) {
+export function CreateUser(props: StateProps) {
+  const [numberOfWindows, setNumberOfWindows] = useState(1);
+  const [createdFriend, setCreatedFriend] = useState<number | undefined>(
+    undefined
+  );
+
+  function handleSave(id: number) {
+    // TODO: feed the user id to the active (topmost) window so that it can be used as input for friends
+    console.log(`id of the user just saved: ${id}`);
+
+    if (numberOfWindows > 1) {
+      setCreatedFriend(id);
+    } else {
+      setCreatedFriend(undefined);
+    }
+
+    if (numberOfWindows > 1) {
+      setNumberOfWindows(numberOfWindows - 1);
+    }
+  }
+
+  function openNewFriendWindow() {
+    setNumberOfWindows(numberOfWindows + 1);
+  }
+
   return (
     <>
-      <Create state={props.state} />
+      {Array(numberOfWindows)
+        .fill(0)
+        .map((_, i) => {
+          const isWindowTopmost =
+            numberOfWindows === 1 || i === numberOfWindows - 1;
+
+          return (
+            <Create
+              key={i}
+              friends={createdFriend ? [createdFriend] : []}
+              disabled={!isWindowTopmost}
+              onSave={handleSave}
+              openNewFriendWindow={openNewFriendWindow}
+              state={props.state}
+            />
+          );
+        })}
     </>
   );
 }
