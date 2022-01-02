@@ -1,4 +1,5 @@
-import { MAX_RETRIES_HIT } from "../errors";
+import { GENERIC_ERROR, MAX_RETRIES_HIT, USER_ALREADY_EXISTS } from "../errors";
+import { User } from "../types";
 
 async function throttle() {
   return new Promise<void>((resolve) => {
@@ -7,7 +8,11 @@ async function throttle() {
   });
 }
 
-async function sendRequest(payload: any) {
+async function sendRequest(payload: {
+  users: User[];
+  name: string;
+  friends: number[];
+}) {
   const maxRetries = 2;
   let retries = 0;
 
@@ -21,20 +26,39 @@ async function sendRequest(payload: any) {
     await throttle();
 
     if (Math.random() < 0.2) {
-      throw new Error("request failed");
+      throw new Error(GENERIC_ERROR);
     }
+
+    const userExists = Boolean(
+      payload.users.find((u) => u.name === payload.name)
+    );
+    if (userExists) {
+      throw new Error(USER_ALREADY_EXISTS);
+    }
+
+    return {
+      name: payload.name,
+      friends: payload.friends,
+      id: payload.users.length + 1,
+    };
   }
 
   while (retries < maxRetries) {
     try {
-      await doRequest();
-      break;
+      const response = await doRequest();
+      return response;
     } catch (error) {
       console.error(error);
-      retries++;
+      const message = (error as Error).message;
+      if (message === GENERIC_ERROR) {
+        retries++;
+        console.log(`retries ${retries}`);
 
-      if (retries >= maxRetries) {
-        throw new Error(MAX_RETRIES_HIT);
+        if (retries >= maxRetries) {
+          throw new Error(MAX_RETRIES_HIT);
+        }
+      } else {
+        throw error;
       }
     }
   }
@@ -43,13 +67,13 @@ async function sendRequest(payload: any) {
 export default class UsersApi {
   /**
    * This implementation does nothing, just adds a throttle and retry logic
-   * @param name name of the user
-   * @param friends user IDs representing a list of friends
+   * @param users the in-memory list of existing users
+   * @param name name of the user to be created
+   * @param friends array of user IDs representing this user's friends
    * @returns Promise
    */
-  static async createUser(name: string, friends: number[]) {
+  static async createUser(users: User[], name: string, friends: number[]) {
     // request mock
-    await sendRequest({ payload: { name, friends } });
-    return { name, friends };
+    return await sendRequest({ users, name, friends });
   }
 }

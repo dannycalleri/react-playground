@@ -53,14 +53,15 @@ function Create(props: Props) {
         throw new Error(EMPTY_USER_NAME);
       }
 
-      const userExists = Boolean(state.data.find((u) => u.name === name));
-      if (userExists) {
-        throw new Error(USER_ALREADY_EXISTS);
-      }
-
       const friendsArray = Array.from(friends);
-      await UsersApi.createUser(name, friendsArray);
-      state.dispatch(createUser(name, friendsArray));
+
+      // NOTE: passing store.data to the UsersApi because the current
+      // implementation works in memory and I wanted to segregate
+      // the majority of the implementation logic there
+      const newUser = await UsersApi.createUser(state.data, name, friendsArray);
+      if (newUser) {
+        state.dispatch(createUser(newUser.id, newUser.name, newUser.friends));
+      }
 
       // reset fields
       setName("");
