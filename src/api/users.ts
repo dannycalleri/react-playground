@@ -15,7 +15,9 @@ async function sendRequest(payload: any) {
     console.log(
       `REQUEST MOCK: sending request #${retries} with payload ${payload}`
     );
-    // TODO: work on retry logic, create a new request wrapper
+
+    // do nothing
+
     await throttle();
 
     if (Math.random() < 0.2) {
@@ -39,6 +41,12 @@ async function sendRequest(payload: any) {
 }
 
 export default class UsersApi {
+  /**
+   * This implementation does nothing, just adds a throttle and retry logic
+   * @param name name of the user
+   * @param friends user IDs representing a list of friends
+   * @returns Promise
+   */
   static async createUser(name: string, friends: number[]) {
     // request mock
     await sendRequest({ payload: { name, friends } });
