@@ -8,45 +8,25 @@ async function throttle() {
   });
 }
 
-async function sendRequest(payload: {
-  users: User[];
-  name: string;
-  friends: number[];
-}) {
+async function sendRequest(payload: RequestPayload) {
   const maxRetries = 2;
   let retries = 0;
 
-  async function doRequest() {
-    console.log(
-      `REQUEST MOCK: sending request #${retries} with payload ${payload}`
-    );
-
-    // do nothing
-
-    await throttle();
-
-    if (Math.random() < 0.2) {
-      throw new Error(GENERIC_ERROR);
-    }
-
-    const userExists = Boolean(
-      payload.users.find((u) => u.name === payload.name)
-    );
-    if (userExists) {
-      throw new Error(USER_ALREADY_EXISTS);
-    }
-
-    return {
-      name: payload.name,
-      friends: payload.friends,
-      id: payload.users.length + 1,
-    };
-  }
-
   while (retries < maxRetries) {
     try {
-      const response = await doRequest();
-      return response;
+      console.log(
+        `REQUEST MOCK: sending request #${retries} with payload ${payload}`
+      );
+
+      // does nothing
+      await throttle();
+      // errors randomly
+      if (Math.random() < 0.2) {
+        throw new Error(GENERIC_ERROR);
+      }
+
+      // identity
+      return payload;
     } catch (error) {
       console.error(error);
       const message = (error as Error).message;
@@ -64,6 +44,12 @@ async function sendRequest(payload: {
   }
 }
 
+interface RequestPayload {
+  users: User[];
+  name: string;
+  friends: number[];
+}
+
 export default class UsersApi {
   /**
    * This implementation does nothing, just adds a throttle and retry logic
@@ -73,7 +59,23 @@ export default class UsersApi {
    * @returns Promise
    */
   static async createUser(users: User[], name: string, friends: number[]) {
-    // request mock
-    return await sendRequest({ users, name, friends });
+    const response = await sendRequest({ users, name, friends });
+
+    if (!response) {
+      throw new Error(GENERIC_ERROR);
+    }
+
+    const userExists = Boolean(
+      response.users.find((u) => u.name === response.name)
+    );
+    if (userExists) {
+      throw new Error(USER_ALREADY_EXISTS);
+    }
+
+    return {
+      name: response.name,
+      friends: response.friends,
+      id: response.users.length + 1,
+    };
   }
 }

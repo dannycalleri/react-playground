@@ -55,7 +55,7 @@ function Create(props: Props) {
 
       const friendsArray = Array.from(friends);
 
-      // NOTE: passing store.data to the UsersApi because the current
+      // NOTE: I'm passing store.data down to the UsersApi because the current
       // implementation works in memory and I wanted to segregate
       // the majority of the implementation logic there
       const newUser = await UsersApi.createUser(state.data, name, friendsArray);
