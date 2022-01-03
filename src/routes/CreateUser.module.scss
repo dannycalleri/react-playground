@@ -1,0 +1,18 @@
+.windows-container {
+  position: relative;
+
+  .window {
+    background-color: white;
+    position: absolute;
+    width: 100%;
+
+    &.disabled {
+      background-color: #666;
+
+      + .window {
+        width: 90%;
+        left: 10%;
+      }
+    }
+  }
+}

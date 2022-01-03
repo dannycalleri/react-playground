@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import classNames from "classnames";
 import { UsersList } from "../components/UsersList";
 import { Button } from "../ui";
 import { createUser } from "../state/users";
@@ -9,6 +10,8 @@ import {
   MAX_RETRIES_HIT,
   USER_ALREADY_EXISTS,
 } from "../errors";
+
+import styles from "./CreateUser.module.scss";
 
 interface CreateProps {
   friends: number[];
@@ -160,11 +163,11 @@ function Create(props: Props) {
   );
 
   return (
-    <>
+    <div className={classNames(styles.window, { [styles.disabled]: disabled })}>
       <h1>New User</h1>
       {error && <p>Error: {error}. Please try again.</p>}
       {loading ? <Loading /> : form}
-    </>
+    </div>
   );
 }
 
@@ -194,7 +197,7 @@ export function CreateUser(props: StateProps) {
   }
 
   return (
-    <>
+    <div className={styles["windows-container"]}>
       {Array(numberOfWindows)
         .fill(0)
         .map((_, i) => {
@@ -212,6 +215,6 @@ export function CreateUser(props: StateProps) {
             />
           );
         })}
-    </>
+    </div>
   );
 }
