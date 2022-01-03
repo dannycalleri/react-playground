@@ -28,12 +28,9 @@ export function editUser(id: number, name: string, friends: number[] = []) {
 export function usersReducer(state: User[], action: Action): User[] {
   switch (action.type) {
     case EDIT_USER: {
-      const userIndex = state.findIndex((u) => u.id === action.payload.id);
-      const user = state[userIndex];
-
-      // const friendsIDs: number[] = action.payload.friends.length > 0 ? action.payload.friends : user.friends;
-      // new Set([...action.payload.friends, ...user.friends]);
       const friendsIDs: number[] = action.payload.friends;
+
+      // edit old users to add/remove eventual friendships
       const users = state.map((user) => {
         const isFriend = friendsIDs.includes(user.id);
         let newFriends: number[] = [];
@@ -58,6 +55,9 @@ export function usersReducer(state: User[], action: Action): User[] {
         };
       });
 
+      const userIndex = state.findIndex((u) => u.id === action.payload.id);
+      const user = state[userIndex];
+
       const newUser = {
         id: user.id,
         name: action.payload.name,
@@ -76,6 +76,7 @@ export function usersReducer(state: User[], action: Action): User[] {
     case CREATE_USER: {
       const friendsIDs: number[] = action.payload.friends;
 
+      // edit users to add eventual friendships
       const users = state.map((user) => {
         const isFriend = friendsIDs.includes(user.id);
         return {
