@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { UsersList } from "../components/UsersList";
 import { Button } from "../ui";
@@ -12,11 +12,14 @@ import {
 } from "../errors";
 
 import styles from "./CreateUser.module.scss";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 interface CreateProps {
   friends: number[];
   openNewFriendWindow: () => void;
+  saveOrAbort?: boolean;
   disabled?: boolean;
+  onAbort?: () => void;
   onSave?: (id: number) => void;
 }
 
@@ -31,8 +34,10 @@ function Create(props: Props) {
     state,
     friends: friendsProp,
     onSave,
+    onAbort,
     openNewFriendWindow,
     disabled = false,
+    saveOrAbort = false,
   } = props;
   const [isDisabled, setDisabled] = useState(disabled);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -112,12 +117,24 @@ function Create(props: Props) {
   const form = (
     <form onSubmit={handleSubmit}>
       <fieldset disabled={isDisabled}>
-        {retry ? (
+        {saveOrAbort && (
+          <div>
+            <p>Save or Abort the current operation?</p>
+            <Button type="submit">Save</Button>
+            <Button onClick={() => onAbort?.()} type="button">
+              Abort
+            </Button>
+          </div>
+        )}
+
+        {retry && (
           <>
-            <p>Please retry</p>
+            <p>Operation failed, please retry</p>
             <Button type="submit">Retry</Button>
           </>
-        ) : (
+        )}
+
+        {!retry && (
           <>
             <label htmlFor="name">Name</label>
             <input
@@ -163,15 +180,17 @@ function Create(props: Props) {
   );
 
   return (
-    <div className={classNames(styles.window, { [styles.disabled]: disabled })}>
+    <>
       <h1>New User</h1>
       {error && <p>Error: {error}. Please try again.</p>}
       {loading ? <Loading /> : form}
-    </div>
+    </>
   );
 }
 
 export function CreateUser(props: StateProps) {
+  const topmostWindowRef = useRef<HTMLDivElement>(null);
+  const [saveOrAbort, setSaveOrAbort] = useState(false);
   const [numberOfWindows, setNumberOfWindows] = useState(1);
   const [createdFriend, setCreatedFriend] = useState<number | undefined>(
     undefined
@@ -180,6 +199,8 @@ export function CreateUser(props: StateProps) {
   function handleSave(id: number) {
     // TODO: feed the user id to the active (topmost) window so that it can be used as input for friends
     console.log(`id of the user just saved: ${id}`);
+
+    setSaveOrAbort(false);
 
     if (numberOfWindows > 1) {
       setCreatedFriend(id);
@@ -196,6 +217,16 @@ export function CreateUser(props: StateProps) {
     setNumberOfWindows(numberOfWindows + 1);
   }
 
+  function handleAbort() {
+    setSaveOrAbort(false);
+    setNumberOfWindows(numberOfWindows - 1);
+  }
+
+  useOnClickOutside(topmostWindowRef, () => {
+    console.log("clicked outside");
+    setSaveOrAbort(true);
+  });
+
   return (
     <div className={styles["windows-container"]}>
       {Array(numberOfWindows)
@@ -205,14 +236,27 @@ export function CreateUser(props: StateProps) {
             numberOfWindows === 1 || i === numberOfWindows - 1;
 
           return (
-            <Create
+            <div
+              ref={
+                isWindowTopmost && numberOfWindows > 1 ? topmostWindowRef : null
+              }
+              className={classNames(styles.window, {
+                [styles.disabled]: !isWindowTopmost,
+              })}
               key={i}
-              friends={createdFriend ? [createdFriend] : []}
-              disabled={!isWindowTopmost}
-              onSave={handleSave}
-              openNewFriendWindow={openNewFriendWindow}
-              state={props.state}
-            />
+            >
+              <Create
+                friends={createdFriend ? [createdFriend] : []}
+                disabled={!isWindowTopmost}
+                onSave={handleSave}
+                onAbort={handleAbort}
+                openNewFriendWindow={openNewFriendWindow}
+                saveOrAbort={
+                  isWindowTopmost && numberOfWindows > 1 && saveOrAbort
+                }
+                state={props.state}
+              />
+            </div>
           );
         })}
     </div>
