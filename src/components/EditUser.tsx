@@ -17,6 +17,7 @@ interface EditUserProps extends StateProps {
   friends: number[];
   openNewFriendWindow: () => void;
   saveFunction: (name: string, friends: number[]) => Promise<User>;
+  title: string;
   saveOrAbort?: boolean;
   disabled?: boolean;
   onAbort?: () => void;
@@ -30,6 +31,7 @@ function Loading() {
 
 function EditUser(props: EditUserProps) {
   const {
+    title,
     name: nameProp,
     friends: friendsProp,
     saveFunction,
@@ -181,7 +183,7 @@ function EditUser(props: EditUserProps) {
 
   return (
     <>
-      <h1>New User</h1>
+      <h1>{title}</h1>
       {error && <p>Error: {error}. Please try again.</p>}
       {loading ? <Loading /> : form}
     </>
@@ -189,6 +191,7 @@ function EditUser(props: EditUserProps) {
 }
 
 interface EditProps extends StateProps {
+  title: string;
   name?: string;
   friends?: number[];
   cleanUpFieldsOnSave?: boolean;
@@ -196,7 +199,7 @@ interface EditProps extends StateProps {
 }
 
 export function Edit(props: EditProps) {
-  const { friends = [], name = "", cleanUpFieldsOnSave = true } = props;
+  const { title, friends = [], name = "", cleanUpFieldsOnSave = true } = props;
   const topmostWindowRef = useRef<HTMLDivElement>(null);
   const [saveOrAbort, setSaveOrAbort] = useState(false);
   const [numberOfWindows, setNumberOfWindows] = useState(1);
@@ -242,6 +245,12 @@ export function Edit(props: EditProps) {
         .map((_, i) => {
           const isWindowTopmost =
             numberOfWindows === 1 || i === numberOfWindows - 1;
+          const isFirstWindow = i === 0;
+
+          let newFriends = isFirstWindow ? [...friends] : [];
+          if (createdFriend) {
+            newFriends = [createdFriend, ...friends];
+          }
 
           return (
             <div
@@ -254,12 +263,11 @@ export function Edit(props: EditProps) {
               key={i}
             >
               <EditUser
+                title={isFirstWindow ? title : "New User"}
                 cleanUpFieldsOnSave={cleanUpFieldsOnSave}
                 saveFunction={props.saveFunction}
-                name={name}
-                friends={
-                  createdFriend ? [createdFriend, ...friends] : [...friends]
-                }
+                name={isFirstWindow ? name : ""}
+                friends={newFriends}
                 disabled={!isWindowTopmost}
                 onSave={handleSave}
                 onAbort={handleAbort}

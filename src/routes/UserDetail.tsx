@@ -16,9 +16,6 @@ export function UserDetail(props: Props) {
   const [error, setError] = useState(false);
 
   async function save(name: string, friends: number[]) {
-    console.log("editing");
-    console.log(name, friends);
-
     if (!user) {
       throw new Error(GENERIC_ERROR);
     }
@@ -39,9 +36,9 @@ export function UserDetail(props: Props) {
       const userExists = Boolean(user);
       if (!userExists) {
         setError(true);
+      } else {
+        setUser(user);
       }
-
-      setUser(user);
     } catch (error) {
       // TODO: show more specific error component here
       console.error(error);
@@ -49,21 +46,34 @@ export function UserDetail(props: Props) {
     }
   }, [params.userId, state.data]);
 
-  console.log(user);
+  const userIndex = state.data.findIndex((u) => u.id === user?.id);
+  const users = [
+    ...state.data.slice(0, userIndex),
+    ...state.data.slice(userIndex + 1),
+  ];
 
   return (
     <>
       {/* placholder reading from param */}
-      <h1>User {params.userId}</h1>
-      {error && <>Some error occurred</>}
+      {error && (
+        <>
+          <h1>User {params.userId}</h1>Some error occurred
+        </>
+      )}
 
-      <Edit
-        state={state}
-        name={user?.name}
-        friends={user?.friends}
-        saveFunction={save}
-        cleanUpFieldsOnSave={false}
-      />
+      {!error && (
+        <Edit
+          title={`User ${params.userId}`}
+          state={{
+            dispatch: state.dispatch,
+            data: users,
+          }}
+          name={user?.name}
+          friends={user?.friends}
+          saveFunction={save}
+          cleanUpFieldsOnSave={false}
+        />
+      )}
     </>
   );
 }

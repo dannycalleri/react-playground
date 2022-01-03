@@ -21,5 +21,5 @@ export function CreateUser(props: Props) {
     return newUser;
   }
 
-  return <Edit state={props.state} saveFunction={save} />;
+  return <Edit title="New User" state={props.state} saveFunction={save} />;
 }
