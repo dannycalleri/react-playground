@@ -45,6 +45,7 @@ async function sendRequest(payload: RequestPayload) {
 }
 
 interface RequestPayload {
+  id?: number;
   users: User[];
   name: string;
   friends: number[];
@@ -76,6 +77,31 @@ export default class UsersApi {
       name: response.name,
       friends: response.friends,
       id: response.users.length + 1,
+    };
+  }
+
+  static async editUser(
+    users: User[],
+    id: number,
+    name: string,
+    friends: number[]
+  ) {
+    const response = await sendRequest({ id, users, name, friends });
+
+    if (!response) {
+      throw new Error(GENERIC_ERROR);
+    }
+
+    const user = response.users.find((u) => u.name === response.name);
+    const userWithSameNameExists = Boolean(user);
+    if (userWithSameNameExists && user?.id !== id) {
+      throw new Error(USER_ALREADY_EXISTS);
+    }
+
+    return {
+      name: response.name,
+      friends: response.friends,
+      id: id,
     };
   }
 }

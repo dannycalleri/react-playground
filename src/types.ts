@@ -14,5 +14,5 @@ export interface User {
   name: string;
   id: number;
   // an array of user IDs
-  friends?: string[];
+  friends?: number[];
 }
