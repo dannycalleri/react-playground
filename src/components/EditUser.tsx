@@ -210,10 +210,13 @@ export function Edit(props: EditProps) {
   } = props;
   const topmostWindowRef = useRef<HTMLDivElement>(null);
   const [saveOrAbort, setSaveOrAbort] = useState(false);
-  const [numberOfWindows, setNumberOfWindows] = useState(1);
-  const [createdFriend, setCreatedFriend] = useState<number | undefined>(
-    undefined
-  );
+  const [windows, setWindows] = useState<{ friends: number[] }[]>([
+    { friends: [] },
+  ]);
+  // const [numberOfWindows, setNumberOfWindows] = useState(1);
+  // const [createdFriend, setCreatedFriend] = useState<number | undefined>(
+  //   undefined
+  // );
 
   function handleSave(id: number) {
     // TODO: feed the user id to the active (topmost) window so that it can be used as input for friends
@@ -221,13 +224,13 @@ export function Edit(props: EditProps) {
 
     setSaveOrAbort(false);
 
-    if (numberOfWindows > 1) {
-      setCreatedFriend(id);
-    } else {
-      setCreatedFriend(undefined);
-    }
+    // if (windows.length > 1) {
+    //   setCreatedFriend(id);
+    // } else {
+    //   setCreatedFriend(undefined);
+    // }
 
-    if (numberOfWindows > 1) {
+    if (windows.length > 1) {
       setNumberOfWindows(numberOfWindows - 1);
     }
   }
