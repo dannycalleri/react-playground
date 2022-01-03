@@ -211,92 +211,82 @@ export function Edit(props: EditProps) {
   const topmostWindowRef = useRef<HTMLDivElement>(null);
   const [saveOrAbort, setSaveOrAbort] = useState(false);
   const [windows, setWindows] = useState<{ friends: number[] }[]>([
-    { friends: [] },
+    { friends },
   ]);
-  // const [numberOfWindows, setNumberOfWindows] = useState(1);
-  // const [createdFriend, setCreatedFriend] = useState<number | undefined>(
-  //   undefined
-  // );
 
   function handleSave(id: number) {
-    // TODO: feed the user id to the active (topmost) window so that it can be used as input for friends
     console.log(`id of the user just saved: ${id}`);
 
     setSaveOrAbort(false);
 
-    // if (windows.length > 1) {
-    //   setCreatedFriend(id);
-    // } else {
-    //   setCreatedFriend(undefined);
-    // }
-
     if (windows.length > 1) {
-      setNumberOfWindows(numberOfWindows - 1);
+      const newWindows = [...windows.slice(0, windows.length - 1)];
+      const lastWindow = newWindows[newWindows.length - 1];
+      if (lastWindow) {
+        lastWindow.friends = [...lastWindow.friends, id];
+      }
+      setWindows(newWindows);
     }
   }
 
   function openNewFriendWindow() {
-    setNumberOfWindows(numberOfWindows + 1);
+    setWindows([...windows, { friends: [] }]);
   }
 
   function handleAbort() {
     setSaveOrAbort(false);
-    setNumberOfWindows(numberOfWindows - 1);
+    setWindows([...windows.slice(0, windows.length - 1)]);
   }
 
   useOnClickOutside(topmostWindowRef, () => {
-    console.log("clicked outside");
     setSaveOrAbort(true);
   });
 
+  useEffect(() => {
+    if (friends.length > 0) {
+      setWindows((windows) => {
+        const newWindow = { ...windows[0] };
+        newWindow.friends = friends;
+        return [newWindow, ...windows.slice(1)];
+      });
+    }
+  }, [friends]);
+
   return (
     <div className={styles["windows-container"]}>
-      {Array(numberOfWindows)
-        .fill(0)
-        .map((_, i) => {
-          const isWindowTopmost =
-            numberOfWindows === 1 || i === numberOfWindows - 1;
-          const isFirstWindow = i === 0;
+      {windows.map((window, i) => {
+        const isWindowTopmost =
+          windows.length === 1 || i === windows.length - 1;
+        const isFirstWindow = i === 0;
 
-          let newFriends: number[] = [...friends];
-          if (createdFriend) {
-            newFriends = [createdFriend, ...friends];
-          }
-
-          if (!isFirstWindow) {
-            newFriends = [];
-          }
-
-          return (
-            <div
-              ref={
-                isWindowTopmost && numberOfWindows > 1 ? topmostWindowRef : null
+        return (
+          <div
+            ref={
+              isWindowTopmost && windows.length > 1 ? topmostWindowRef : null
+            }
+            className={classNames(styles.window, {
+              [styles.disabled]: !isWindowTopmost,
+            })}
+            key={i}
+          >
+            <EditUser
+              title={isFirstWindow ? title : "New User"}
+              cleanUpFieldsOnSave={cleanUpFieldsOnSave}
+              saveFunction={
+                isFirstWindow ? mainWindowFunction : newUserFunction
               }
-              className={classNames(styles.window, {
-                [styles.disabled]: !isWindowTopmost,
-              })}
-              key={i}
-            >
-              <EditUser
-                title={isFirstWindow ? title : "New User"}
-                cleanUpFieldsOnSave={cleanUpFieldsOnSave}
-                saveFunction={
-                  isFirstWindow ? mainWindowFunction : newUserFunction
-                }
-                name={isFirstWindow ? name : ""}
-                friends={newFriends}
-                disabled={!isWindowTopmost}
-                onSave={handleSave}
-                onAbort={handleAbort}
-                openNewFriendWindow={openNewFriendWindow}
-                saveOrAbort={
-                  isWindowTopmost && numberOfWindows > 1 && saveOrAbort
-                }
-                state={props.state}
-              />
-            </div>
-          );
-        })}
+              name={isFirstWindow ? name : ""}
+              friends={window.friends}
+              disabled={!isWindowTopmost}
+              onSave={handleSave}
+              onAbort={handleAbort}
+              openNewFriendWindow={openNewFriendWindow}
+              saveOrAbort={isWindowTopmost && windows.length > 1 && saveOrAbort}
+              state={props.state}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
