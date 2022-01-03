@@ -9,7 +9,7 @@ type Props = StateProps;
 export function CreateUser(props: Props) {
   const { state } = props;
 
-  async function save(name: string, friends: number[]) {
+  async function create(name: string, friends: number[]) {
     // NOTE: I'm passing store.data down to the UsersApi because the current
     // implementation works in memory and I wanted to segregate
     // the majority of the implementation logic there
@@ -21,5 +21,12 @@ export function CreateUser(props: Props) {
     return newUser;
   }
 
-  return <Edit title="New User" state={props.state} saveFunction={save} />;
+  return (
+    <Edit
+      title="New User"
+      state={props.state}
+      newUserFunction={create}
+      mainWindowFunction={create}
+    />
+  );
 }

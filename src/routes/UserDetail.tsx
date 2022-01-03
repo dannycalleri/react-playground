@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import UsersApi from "../api/users";
 import { Edit } from "../components/EditUser";
 import { GENERIC_ERROR } from "../errors";
-import { editUser } from "../state/users";
+import { createUser, editUser } from "../state/users";
 import type { StateProps, User } from "../types";
 
 type Props = StateProps;
@@ -15,7 +15,19 @@ export function UserDetail(props: Props) {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [error, setError] = useState(false);
 
-  async function save(name: string, friends: number[]) {
+  async function create(name: string, friends: number[]) {
+    // NOTE: I'm passing store.data down to the UsersApi because the current
+    // implementation works in memory and I wanted to segregate
+    // the majority of the implementation logic there
+    const newUser = await UsersApi.createUser(state.data, name, friends);
+    if (newUser) {
+      state.dispatch(createUser(newUser.id, newUser.name, newUser.friends));
+    }
+
+    return newUser;
+  }
+
+  async function edit(name: string, friends: number[]) {
     if (!user) {
       throw new Error(GENERIC_ERROR);
     }
@@ -70,7 +82,8 @@ export function UserDetail(props: Props) {
           }}
           name={user?.name}
           friends={user?.friends}
-          saveFunction={save}
+          newUserFunction={create}
+          mainWindowFunction={edit}
           cleanUpFieldsOnSave={false}
         />
       )}

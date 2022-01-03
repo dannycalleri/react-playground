@@ -195,11 +195,19 @@ interface EditProps extends StateProps {
   name?: string;
   friends?: number[];
   cleanUpFieldsOnSave?: boolean;
-  saveFunction: (name: string, friends: number[]) => Promise<User>;
+  mainWindowFunction: (name: string, friends: number[]) => Promise<User>;
+  newUserFunction: (name: string, friends: number[]) => Promise<User>;
 }
 
 export function Edit(props: EditProps) {
-  const { title, friends = [], name = "", cleanUpFieldsOnSave = true } = props;
+  const {
+    title,
+    friends = [],
+    name = "",
+    cleanUpFieldsOnSave = true,
+    mainWindowFunction,
+    newUserFunction,
+  } = props;
   const topmostWindowRef = useRef<HTMLDivElement>(null);
   const [saveOrAbort, setSaveOrAbort] = useState(false);
   const [numberOfWindows, setNumberOfWindows] = useState(1);
@@ -247,9 +255,13 @@ export function Edit(props: EditProps) {
             numberOfWindows === 1 || i === numberOfWindows - 1;
           const isFirstWindow = i === 0;
 
-          let newFriends = isFirstWindow ? [...friends] : [];
+          let newFriends: number[] = [...friends];
           if (createdFriend) {
             newFriends = [createdFriend, ...friends];
+          }
+
+          if (!isFirstWindow) {
+            newFriends = [];
           }
 
           return (
@@ -265,7 +277,9 @@ export function Edit(props: EditProps) {
               <EditUser
                 title={isFirstWindow ? title : "New User"}
                 cleanUpFieldsOnSave={cleanUpFieldsOnSave}
-                saveFunction={props.saveFunction}
+                saveFunction={
+                  isFirstWindow ? mainWindowFunction : newUserFunction
+                }
                 name={isFirstWindow ? name : ""}
                 friends={newFriends}
                 disabled={!isWindowTopmost}
