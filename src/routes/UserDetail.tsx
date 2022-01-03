@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import UsersApi from "../api/users";
-import { Edit } from "../components/EditUser";
+import { UserFormManager } from "../components/UserFormManager";
 import { GENERIC_ERROR } from "../errors";
 import { createUser, editUser } from "../state/users";
 import type { StateProps, User } from "../types";
@@ -74,7 +74,7 @@ export function UserDetail(props: Props) {
       )}
 
       {!error && (
-        <Edit
+        <UserFormManager
           title={`User ${params.userId}`}
           state={{
             dispatch: state.dispatch,

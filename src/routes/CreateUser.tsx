@@ -1,6 +1,6 @@
 import React from "react";
 import UsersApi from "../api/users";
-import { Edit } from "../components/EditUser";
+import { UserFormManager } from "../components/UserFormManager";
 import { createUser } from "../state/users";
 import type { StateProps } from "../types";
 
@@ -22,7 +22,7 @@ export function CreateUser(props: Props) {
   }
 
   return (
-    <Edit
+    <UserFormManager
       title="New User"
       state={props.state}
       newUserFunction={create}
