@@ -69,7 +69,6 @@ export function usersReducer(state: User[], action: Action): User[] {
         newUser,
         ...users.slice(userIndex + 1),
       ];
-      console.log(newState);
 
       return newState;
     }

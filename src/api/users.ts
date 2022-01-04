@@ -80,6 +80,7 @@ export default class UsersApi {
     };
   }
 
+  // same comments above applies here
   static async editUser(
     users: User[],
     id: number,
