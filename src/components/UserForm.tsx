@@ -35,6 +35,7 @@ export function UserForm(props: UserFormProps) {
     saveOrAbort = false,
     cleanUpFieldsOnSave,
   } = props;
+  const [success, setSuccess] = useState(false);
   const [isDisabled, setDisabled] = useState(disabled);
   const [error, setError] = useState<string | undefined>(undefined);
   const [retry, setRetry] = useState(false);
@@ -65,6 +66,7 @@ export function UserForm(props: UserFormProps) {
     setError(undefined);
     setRetry(false);
     setLoading(true);
+    setSuccess(false);
 
     try {
       if (name.trim() === "") {
@@ -81,6 +83,7 @@ export function UserForm(props: UserFormProps) {
 
       setLoading(false);
       onSave?.(newUser.id);
+      setSuccess(true);
     } catch (error) {
       console.error(error);
       const message = (error as Error).message;
@@ -94,6 +97,7 @@ export function UserForm(props: UserFormProps) {
       }
 
       setLoading(false);
+      setSuccess(false);
     }
   }
 
@@ -177,6 +181,7 @@ export function UserForm(props: UserFormProps) {
   return (
     <>
       <h1>{title}</h1>
+      {success && <p>Operation completed successfully!</p>}
       {error && <p>Error: {error}. Please try again.</p>}
       {loading ? <Loading /> : form}
     </>

@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Button should render correctly 1`] = `
+<DocumentFragment>
+  <button
+    type="submit"
+  >
+    Send
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button should render correctly with different type 1`] = `
+<DocumentFragment>
+  <button
+    type="button"
+  >
+    Send
+  </button>
+</DocumentFragment>
+`;

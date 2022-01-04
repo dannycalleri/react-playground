@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserForm should render correctly 1`] = `
+<DocumentFragment>
+  <h1>
+    This is a title
+  </h1>
+  <form>
+    <fieldset>
+      <label
+        for="name"
+      >
+        Name
+      </label>
+      <input
+        id="name"
+        type="text"
+        value="Daniele"
+      />
+      <div>
+        <div>
+          <button
+            type="button"
+          >
+            Select friend
+          </button>
+          <button
+            type="button"
+          >
+            New friend
+          </button>
+        </div>
+      </div>
+      <div>
+        <button
+          type="submit"
+        >
+          Save
+        </button>
+      </div>
+       
+    </fieldset>
+  </form>
+</DocumentFragment>
+`;

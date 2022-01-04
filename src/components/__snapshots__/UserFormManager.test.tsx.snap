@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserFormManager should render correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="windows-container"
+  >
+    <div
+      class="window"
+      role="dialog"
+    >
+      <h1>
+        This is a title
+      </h1>
+      <form>
+        <fieldset>
+          <label
+            for="name"
+          >
+            Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            value=""
+          />
+          <div>
+            <div>
+              <button
+                type="button"
+              >
+                Select friend
+              </button>
+              <button
+                type="button"
+              >
+                New friend
+              </button>
+            </div>
+          </div>
+          <div>
+            <button
+              type="submit"
+            >
+              Save
+            </button>
+          </div>
+           
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</DocumentFragment>
+`;

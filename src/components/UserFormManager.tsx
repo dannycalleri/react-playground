@@ -84,6 +84,7 @@ export function UserFormManager(props: UserFormManagerProps) {
               [styles.disabled]: !isWindowTopmost,
             })}
             key={i}
+            role="dialog"
           >
             <UserForm
               title={isFirstWindow ? title : "New User"}

@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UsersList should render correctly 1`] = `
+<DocumentFragment>
+  <ul>
+    <li>
+      <a
+        href="/users/1"
+      >
+        Daniele
+      </a>
+    </li>
+    <li>
+      <a
+        href="/users/2"
+      >
+        Sandro
+      </a>
+    </li>
+  </ul>
+</DocumentFragment>
+`;
